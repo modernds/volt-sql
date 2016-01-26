@@ -1,8 +1,19 @@
 require 'volt'
 
-if ENV['DB'] = 'pg'
+if ENV['DB'] == 'pg'
   Volt.configure do |config|
-    config.db.uri = 'postgres://ryanstout:@localhost:5432/volt_sql_test'
+    config.db.driver = 'postgres'
+    config.db.name = 'volt_sql_test'
+  end
+elsif ENV['DB'] == 'sqlite'
+  Volt.configure do |config|
+    config.db.driver = 'sqlite'
+    config.db.name = 'config/db/test.db'
+  end
+elsif ENV['DB'] == 'mysql'
+  Volt.configure do |config|
+    config.db.driver = 'mysql'
+    config.db.name = 'volt_sql_test'
   end
 end
 

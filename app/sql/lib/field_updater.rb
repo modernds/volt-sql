@@ -22,7 +22,16 @@ module Volt
           log("Add field #{column_name} to #{table_name}")
           # Column does not exist, add it.
           # Make sure klass matches
-          @db.add_column(table_name, column_name, sequel_class, sequel_opts)
+          # SQLite does not allow you to create a column with allow_null: false and no default value.
+          # To get around this, create the column, then set allow_null: false.
+          # See http://stackoverflow.com/questions/3170634/how-to-solve-cannot-add-a-not-null-column-with-default-value-null-in-sqlite3
+          if sequel_opts[:allow_null] == false
+            sequel_opts.delete(:allow_null)
+            @db.add_column(table_name, column_name, sequel_class, sequel_opts)
+            @db.alter_table(table_name) { set_column_not_null(column_name) }
+          else
+            @db.add_column(table_name, column_name, sequel_class, sequel_opts)
+          end
         else
           db_class, db_opts = @table_reconcile.sequel_class_and_opts_from_db(db_field)
 

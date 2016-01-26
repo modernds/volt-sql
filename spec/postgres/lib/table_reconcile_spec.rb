@@ -43,6 +43,7 @@ describe Volt::Sql::TableReconcile do
     db_fields = reconcile.db_fields_for_table(:sample_model2s)
 
     schema = {
+      :name => {:db_type=>"text", :default=>nil, :allow_null=>true, :primary_key=>false, :type=>:string, :ruby_default=>nil},
       :id=>{:db_type=>"text", :default=>nil, :allow_null=>false, :primary_key=>true, :type=>:string, :auto_increment=>false, :ruby_default=>nil},
       :extra=>{:db_type=>"json", :default=>nil, :allow_null=>true, :primary_key=>false, :type=>:json, :ruby_default=>nil},
       :created_at=>{:db_type=>"timestamp without time zone", :default=>nil, :allow_null=>true, :primary_key=>false, :type=>:datetime, :ruby_default=>nil},
@@ -52,12 +53,6 @@ describe Volt::Sql::TableReconcile do
       :is_admin => {:db_type=>"boolean", :default=>nil, :allow_null=>true, :primary_key=>false, :type=>:boolean, :ruby_default=>nil},
       :place => {:db_type=>"text", :default=>nil, :allow_null=>false, :primary_key=>false, :type=>:string, :ruby_default=>nil}
     }
-
-    if adaptor_name == 'sqlite'
-      schema[:name] = {:db_type=>"text", :default=>nil, :allow_null=>true, :primary_key=>false, :type=>:string, :ruby_default=>nil}
-    else
-      schema[:name] = {:db_type=>"text", :default=>nil, :allow_null=>true, :primary_key=>false, :type=>:string, :ruby_default=>nil}
-    end
 
     schema.each_pair do |field_name, attrs|
       expect(db_fields[field_name].without(:oid)).to eq(attrs)

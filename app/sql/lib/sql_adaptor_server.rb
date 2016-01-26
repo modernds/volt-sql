@@ -86,7 +86,7 @@ module Volt
 
               @db.test_connection
             rescue Sequel::DatabaseConnectionError => e
-              if e.message =~ /does not exist/
+              if e.message =~ /does not exist|Unknown database/
                 create_missing_database
               else
                 raise
