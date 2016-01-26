@@ -54,10 +54,10 @@ module Volt
         end
       end
 
-      # Set db_driver if not set
-      unless Volt.config.db_driver
+      # Set db.driver if not set
+      unless Volt.config.db.driver
         Volt.configure do |config|
-          config.db_driver = 'sqlite'
+          config.db.driver = 'sqlite'
         end
       end
 
@@ -148,14 +148,16 @@ module Volt
 
           return uri, adaptor
         else
-          adaptor = (conf.db && conf.db.adapter || 'sqlite').to_s
+          adaptor = conf.db.driver.to_s
+          data = Volt.config.db.to_h.symbolize_keys
+
           if adaptor == 'sqlite'
             # Make sure we have a config/db folder
             FileUtils.mkdir_p('config/db')
+            data[:database] ||= "config/db/#{Volt.env.to_s}.db"
           end
 
-          data = Volt.config.db.to_h.symbolize_keys
-          data[:database] ||= "config/db/#{Volt.env.to_s}.db"
+          data[:database] ||= Volt.config.db.name || "#{Volt.config.app_name}_#{Volt.env.to_s}"
           data[:adapter]  ||= adaptor
 
           return data, adaptor
@@ -164,7 +166,6 @@ module Volt
 
       def connect_to_db
         uri_opts, adaptor = connect_uri_or_options
-
         @db = Sequel.connect(uri_opts)
 
         if adaptor == 'sqlite'
@@ -174,7 +175,7 @@ module Volt
         adaptor
       end
 
-      # In order to create the database, we have to connect first witout the
+      # In order to create the database, we have to connect first without the
       # database.
       def create_missing_database
         @db.disconnect
